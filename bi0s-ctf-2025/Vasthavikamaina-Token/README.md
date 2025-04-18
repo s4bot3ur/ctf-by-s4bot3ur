@@ -1,66 +1,24 @@
-## Foundry
+# VASTHAVIKAMAINA TOKEN
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
-
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
+### Follow the following steps to deploy the chall and run solve script locally
 
 ```shell
-$ forge build
+make deploy
 ```
+- This will deploy all the contracts of the challenge
+```shell
+make solve
+```
+- This will run the solve script. 
 
-### Test
+### Follow the following steps to run the Solve test
 
 ```shell
-$ forge test
+make make create-uniswap-factory
 ```
-
-### Format
+This is needed because uniswap contract versions are 0.5.16 and our core contracts version is ^0.8.20. So we can directly import uniswap files into tests. If we do so we will get compiler error.
 
 ```shell
-$ forge fmt
+make fork-mt TEST=testSolve V=-vv
 ```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+This will run the solve test

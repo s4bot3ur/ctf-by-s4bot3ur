@@ -111,7 +111,7 @@ contract Factory is Ownable{
         return (_uniPair,_lamboToken);
     }
 
-    function addVasthavikamainaLiquidity(address _vasthavikamainaToken,address _lamboToken,uint256 _loanAmount,uint256 )external returns(uint256){
+    function addVasthavikamainaLiquidity(address _vasthavikamainaToken,address _lamboToken,uint256 _loanAmount,uint256 _quoteAmount)external returns(uint256){
         if(!_whiteList[_vasthavikamainaToken]){
             revert Factory__VasthavikamainaToken__Not_WhiteListed(_vasthavikamainaToken);
         }

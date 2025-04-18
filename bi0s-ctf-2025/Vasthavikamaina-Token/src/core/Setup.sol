@@ -15,13 +15,15 @@ contract Setup {
     WhiteListed public whilteListed;
     Factory public factory;
     WETH9 public wETH9;
-    Balancer public _balancer;
+    Balancer public balancer;
     IUniswapV2Pair public uniPair1;
     IUniswapV2Pair public uniPair2;
     IUniswapV2Pair public uniPair3;
     LamboToken public lamboToken1;
     LamboToken public lamboToken2;
     LamboToken public lamboToken3;
+
+    
 
     constructor(address _uniswapV2Factory) payable {
         VSTETH=new VasthavikamainaToken();
@@ -34,25 +36,25 @@ contract Setup {
         string memory _name="HattedBull";
         string memory _symbol="HBL";
         (address _uniPair,LamboToken _lamboToken,)=whilteListed.createPair_And_buyQuote{value: 3.3 ether}(factory, _name, _symbol, 20e18, 3.3 ether, 0);
-        uniPair1=IUniswapV2Pair(_uniPair);
-        lamboToken1=_lamboToken;
-        _name="CowrieBO";
-        _symbol="CBO";
+        uniPair1=IUniswapV2Pair(_uniPair);//Pool VETH balance=152534758877722247977 , Pool VETH Debt=20000000000000000000
+        lamboToken1=_lamboToken;//diff=132534758877722247977 Hack_Amount=132513467878004258374
+        _name="CowrieBO";//Pool VETH balance=25007791505809550535 , Pool VETH Debt=20000000000000000000
+        _symbol="CBO";// Hack_Amount=4846141416396402693/1e18 , diff=5007791505809550535s
         (_uniPair,_lamboToken,)=whilteListed.createPair_And_buyQuote{value: 0.05 ether}(factory, _name, _symbol, 20e18, 0.05 ether, 0);
         uniPair2=IUniswapV2Pair(_uniPair);
         lamboToken2=_lamboToken;
-        _name="BOVCOIN";
-        _symbol="BIN";
+        _name="BOVCOIN";//Pool VETH balance=23852171628908871705, Pool VETH Debt=20000000000000000000
+        _symbol="BIN";// HAck_Amount=3125543372313501089 , diff=3852171628908871705
         (_uniPair,_lamboToken,)=whilteListed.createPair_And_buyQuote{value: 3 ether}(factory, _name, _symbol, 20e18, 3 ether, 0);
         uniPair3=IUniswapV2Pair(_uniPair);
         lamboToken3=_lamboToken;
         wETH9=new WETH9();
-        _balancer=new Balancer();
-        _balancer.approveToken(address(address(lamboToken1)));
-        _balancer.approveToken(address(address(lamboToken2)));
-        _balancer.approveToken(address(address(lamboToken3)));
-        _balancer.approveToken(address(wETH9));
-        _balancer.approveToken(address(VSTETH));
+        balancer=new Balancer();
+        balancer.approveToken(address(address(lamboToken1)));
+        balancer.approveToken(address(address(lamboToken2)));
+        balancer.approveToken(address(address(lamboToken3)));
+        balancer.approveToken(address(wETH9));
+        balancer.approveToken(address(VSTETH));
     }
     
 }

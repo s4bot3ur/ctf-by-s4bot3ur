@@ -100,7 +100,7 @@ contract WhiteListed{
         LamboToken(_lamboToken).transfer(_uniPair, _amountIn);
         IUniswapV2Pair(_uniPair).swap(_amount0Out, _amount1Out,address(this), "");
         vasthavikamainaToken.cashOut(_amountOut);
-
+        payable(msg.sender).call{value:_amountOut }("");
         return _amountOut;
     }
 
@@ -140,4 +140,7 @@ contract WhiteListed{
         return (_uniPair,_lamboToken,_amountOut);
     }
 
+    receive()external payable{
+
+    }
 }

@@ -39,7 +39,18 @@ contract testBalancer is Test {
         _balancer.flashloan(_flashloanReceiver, _tokens, _amounts, _data);
     }
 
-    
+    function test_flash_loan_and_provideLiquidity_Fails()public AddLiquidity{
+        bytes memory _data=abi.encodePacked(abi.encode(bytes32("ProvideLiquidity")),abi.encode(address(_balancer)));
+        
+        FlashLoanReceiver _flashloanReceiver =new FlashLoanReceiver();
+        IERC20[] memory _tokens=new IERC20[](1);
+        uint256[] memory _amounts=new uint256[](1);
+        _tokens[0]=IERC20(address(wETH9));
+        _amounts[0]=_liquidityAmount;
+        vm.expectRevert(Balancer.Balancer__ReEntrancy__prohibited.selector);
+        _balancer.flashloan(_flashloanReceiver, _tokens, _amounts, _data);
+        
+    }
 }
 
 contract FlashLoanReceiver is IFlashLoanRecipient {
@@ -49,7 +60,16 @@ contract FlashLoanReceiver is IFlashLoanRecipient {
         uint256[] memory _feeAmounts,
         bytes memory _data
     ) external override {
-        for (uint8 i = 0; i < _tokens.length; i++) {
+
+        if(keccak256(abi.encodePacked(bytes32(_data)))==keccak256(abi.encodePacked(bytes32("ProvideLiquidity")))){
+            if(_tokens.length>1){
+                revert("Only WETH has provide LIQUIDITY function");
+            }
+            (,address _balancer)=abi.decode(_data,(bytes32,address));
+            _tokens[0].approve(_balancer,_amounts[0]);
+            Balancer(_balancer).provideLiquidity(address(_tokens[0]), _amounts[0]);
+        }else{
+            for (uint8 i = 0; i < _tokens.length; i++) {
             IERC20(_tokens[i]).transfer(
                 msg.sender,
                 _feeAmounts[i] + _amounts[i]
@@ -57,6 +77,8 @@ contract FlashLoanReceiver is IFlashLoanRecipient {
             console.log("Token:",address(_tokens[i]));
             console.log("Amounts :",_amounts[i]);
         }
+        }
+        
     }
 }
 
