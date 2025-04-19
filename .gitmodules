@@ -7,3 +7,6 @@
 [submodule "bi0s-ctf-2025/Vasthavikamaina-Token/lib/openzeppelin-contracts"]
 	path = bi0s-ctf-2025/Vasthavikamaina-Token/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "bi0s-ctf-2025/DEX/lib/openzeppelin-contracts"]
+	path = bi0s-ctf-2025/DEX/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts

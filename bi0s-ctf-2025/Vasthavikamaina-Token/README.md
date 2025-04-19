@@ -14,7 +14,7 @@ make solve
 ### Follow the following steps to run the Solve test
 
 ```shell
-make make create-uniswap-factory
+make create-uniswap-factory
 ```
 This is needed because uniswap contract versions are 0.5.16 and our core contracts version is ^0.8.20. So we can directly import uniswap files into tests. If we do so we will get compiler error.
 
