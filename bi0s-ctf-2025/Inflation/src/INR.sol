@@ -2,14 +2,14 @@
 pragma solidity ^0.8.20;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {console} from "forge-std/Test.sol";
 
-contract INR is Ownable{
+contract INR {
     error InsufficientBalance(uint256 _actualBalance,uint256 _expectedAmount);
     error InsufficientAllowance(uint256,uint256);
     error Invalid_Length(uint256,uint256);
     error INR__Zero__Balance();
+    error OwnableUnauthorizedAccount(address);
     /*
     Owner     -> slot0
     balances  -> slot1
@@ -18,7 +18,7 @@ contract INR is Ownable{
     name      -> slot4
     symbol    -> slot5
     */
-    constructor(uint256 initalSupply,string memory name,string memory symbol)Ownable(msg.sender){
+    constructor(uint256 initalSupply,string memory name,string memory symbol){
         assembly{
             let ptr:=mload(0x40)
             if gt(mload(name),0x20){
@@ -34,18 +34,17 @@ contract INR is Ownable{
                 mstore(add(ptr,0x60),mload(symbol))
                 revert(add(add(ptr,0x20),0x1c),0x44)
             }
-            sstore(4,mload(add(name,0x20)))
-            sstore(5,mload(add(ptr,0x20)))
+            sstore(0x00,caller())
+            sstore(0x03,initalSupply)
+            sstore(0x04,mload(add(name,0x20)))
+            sstore(0x05,mload(add(ptr,0x20)))
             mstore(ptr,caller())
             mstore(add(ptr,0x20),1)
             sstore(keccak256(ptr,0x40),initalSupply)
-            sstore(0x03,initalSupply)
+            
         }
     }
-
-    function name()public view returns (uint256){
-        
-    }
+    
 
     function totalSupply()public view returns (uint256){
         assembly{
@@ -194,31 +193,42 @@ contract INR is Ownable{
     
 
 
-    function mint(address to,uint256 amount)public onlyOwner{
+    function mint(address to,uint256 amount)public {
         assembly{
             let ptr:=mload(0x40)
+            if iszero(eq(caller(),sload(0x00))){
+                mstore(ptr,0x118cdaa7)
+                mstore(add(ptr,0x20),caller())
+                revert(add(ptr,0x1c),0x24)
+
+            }
             mstore(ptr,to)
             mstore(add(ptr,0x20),1)
             mstore(ptr,keccak256(ptr,0x40))
-            sstore(ptr,add(sload(ptr),amount))
+            sstore(mload(ptr),add(sload(mload(ptr)),amount))
             sstore(3,add(sload(3),amount))
         }
     }
 
-    function burn(address to,uint256 amount)public onlyOwner{
+    function burn(address from,uint256 amount)public {
         assembly{
             let ptr:=mload(0x40)
-            mstore(ptr,to)
+            if iszero(eq(caller(),sload(0x00))){
+                mstore(ptr,0x118cdaa7)
+                mstore(add(ptr,0x20),caller())
+                revert(add(ptr,0x1c),0x24)
+            }
+            mstore(ptr,from)
             mstore(add(ptr,0x20),1)
             mstore(ptr,keccak256(ptr,0x40))
-            mstore(add(ptr,0x20),sload(ptr))
+            mstore(add(ptr,0x20),sload(mload(ptr)))
             if lt(mload(add(ptr,0x20)),amount){
                 mstore(ptr,0xcf479181)
                 mstore(add(ptr,0x20),mload(add(ptr,0x20)))
-                mstore(add(ptr,0x20),amount)
+                mstore(add(ptr,0x40),amount)
                 revert(add(ptr,0x1c),0x44)
             }
-            sstore(ptr,sub(mload(add(ptr,0x20)),amount))
+            sstore(mload(ptr),sub(mload(add(ptr,0x20)),amount))
             sstore(3,sub(sload(3),amount))
         }
     }

@@ -133,5 +133,58 @@ contract testINR is Test{
         vm.expectRevert(abi.encodeWithSelector(INR.INR__Zero__Balance.selector));
         inr.batchTransfer(receivers, transferAmount);
         
+
+    }
+
+    function test_Only_Owner_Can_Mint()public{
+        address nonOwner=makeAddr("NON OWNER");
+        uint256 mintAmount=100e18;
+        console.log(nonOwner);
+        hoax(nonOwner);
+        vm.expectRevert(abi.encodeWithSelector(INR.OwnableUnauthorizedAccount.selector, nonOwner));
+        inr.mint(nonOwner, mintAmount);
+
+        hoax(owner);
+        inr.mint(nonOwner, mintAmount);
+        console.log(inr.balanceOf(nonOwner));
+        assertEq(inr.balanceOf(nonOwner),mintAmount);
+    }
+
+
+    function test_Only_Owner_Can_Burn()public{
+        uint256 mintAmount=100e18;
+        uint256 _tokenReceiverBalanceBefore=inr.balanceOf(tokenReceiver);
+        hoax(owner);
+        inr.mint(tokenReceiver, mintAmount);
+        
+        address nonOwner=makeAddr("NON OWNER");
+        hoax(nonOwner);
+        vm.expectRevert(abi.encodeWithSelector(INR.OwnableUnauthorizedAccount.selector, nonOwner));
+        inr.burn(tokenReceiver, mintAmount);
+
+        hoax(owner);
+        inr.burn(tokenReceiver, mintAmount);
+        assertEq(inr.balanceOf(tokenReceiver),_tokenReceiverBalanceBefore);
+
+        startHoax(owner);
+        uint256 _currentBalance=inr.balanceOf(tokenReceiver);
+        vm.expectRevert(abi.encodeWithSelector(INR.InsufficientBalance.selector,_currentBalance, mintAmount));
+        inr.burn(tokenReceiver, mintAmount);
+        vm.stopPrank();
+    }
+
+    function test_Mint_Increase_Total_Supply_And_Burn_Decrease_TotalSupply()public{
+        assertEq(inr.totalSupply(),INR_INITIAL_SUPPLY);
+        startHoax(owner);
+        uint256 amount=100e18;
+        inr.mint(tokenReceiver, amount);
+        assertEq(inr.totalSupply(),INR_INITIAL_SUPPLY+amount);
+        inr.burn(tokenReceiver, amount);
+        assertEq(inr.totalSupply(),INR_INITIAL_SUPPLY);
+    }
+
+
+    function test_name_and_symbol()public{
+        inr.name();
     }
 }
