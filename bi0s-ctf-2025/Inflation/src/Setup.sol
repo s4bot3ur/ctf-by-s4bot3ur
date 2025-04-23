@@ -9,10 +9,12 @@ contract Setup{
     error Setup_Already_Claimed();
     error Setup_Insufficient_Ether();
     error Setup__Chall__Unsolved();
+    error Setup__Not__Yet__Staked();
     Stake public stake;
     INR public inr;
     bool public claimed;
     bool public solved;
+    bool public staked;
     uint256 bonusAmount=1746230400;
     uint256 stakeAmount=100_000 ether;
     constructor(){
@@ -31,9 +33,13 @@ contract Setup{
     function stakeINR()external{
         inr.approve(address(stake), stakeAmount);
         stake.deposit(stakeAmount , address(this));
+        staked=true;
     }
 
     function solve()external{
+        if(!staked){
+            revert Setup__Not__Yet__Staked();
+        }
         uint256 assetsReceived=stake.redeemAll(address(this),address(this));
         if(assetsReceived>75_000 ether){
             revert Setup__Chall__Unsolved();

@@ -20,6 +20,12 @@ contract testChall is Test{
         ExploitInflation _exploit=new ExploitInflation(setup);
         _exploit.Exploit();
     }
+
+    function test_unintended()public{
+        startHoax(player);
+        vm.expectRevert(abi.encodeWithSelector(Setup.Setup__Not__Yet__Staked.selector));
+        setup.solve();
+    }
 }
 
 contract ExploitInflation{

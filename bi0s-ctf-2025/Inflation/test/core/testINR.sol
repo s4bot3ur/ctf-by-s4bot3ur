@@ -184,7 +184,5 @@ contract testINR is Test{
     }
 
 
-    function test_name_and_symbol()public{
-        inr.name();
-    }
+    
 }
