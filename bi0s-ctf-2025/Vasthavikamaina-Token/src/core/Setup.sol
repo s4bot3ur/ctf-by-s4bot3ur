@@ -10,6 +10,9 @@ import {LamboToken} from "./LamboToken.sol";
 import {WETH9} from "./WETH.sol";
 import {Balancer} from "./Balancer.sol";
 contract Setup {
+
+    error Setup__Player__Not__Set();
+    error Setup__Chall__Not__Solved();
     VasthavikamainaToken public VSTETH;
     IUniswapV2Factory public uniswapV2Factory;
     WhiteListed public whilteListed;
@@ -22,7 +25,7 @@ contract Setup {
     LamboToken public lamboToken1;
     LamboToken public lamboToken2;
     LamboToken public lamboToken3;
-
+    address public player;
     
 
     constructor(address _uniswapV2Factory) payable {
@@ -57,4 +60,17 @@ contract Setup {
         balancer.approveToken(address(VSTETH));
     }
     
+    function setPlayer(address _player)public{
+        player=_player;
+    }
+
+    function isSolved()public view returns (bool){
+        if(player==address(0)){
+            revert Setup__Player__Not__Set();
+        }
+        if(player.balance< 141.3 ether){
+            revert Setup__Chall__Not__Solved();
+        }
+        return true;
+    }
 }

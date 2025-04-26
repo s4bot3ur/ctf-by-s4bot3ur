@@ -174,6 +174,9 @@ contract FlashLoanReceiver is IFlashLoanRecipient {
             console.log("ETH PROFIT AFTER STEP3 :",address(this).balance);
             payable(player).transfer(address(this).balance);
             console.log("TOTAL PROFIT           :",address(player).balance);
+            setup.setPlayer(player);
+            setup.isSolved();
+            console.log(setup.isSolved());
         }
         }
 

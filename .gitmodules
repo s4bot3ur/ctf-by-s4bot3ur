@@ -16,3 +16,12 @@
 [submodule "bi0s-ctf-2025/Inflation/lib/openzeppelin-contracts"]
 	path = bi0s-ctf-2025/Inflation/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "bi0s-ctf-2025/Phoenix/lib/forge-std"]
+	path = bi0s-ctf-2025/Phoenix/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "bi0s-ctf-2025/Phoenix/lib/openzeppelin-contracts"]
+	path = bi0s-ctf-2025/Phoenix/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "bi0s-ctf-2025/SIR-Hack/lib/forge-std"]
+	path = bi0s-ctf-2025/SIR-Hack/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std

