@@ -209,6 +209,13 @@ contract DEX is Ownable,ERC20("LPTOKEN","LPT") {
         return _tokensOut;
     }
 
+    ///@notice This challenge had an unintended solution because the second line mistakenly used `token0` for the transfer instead of `token1`. 
+    /*
+    function skim(address _to) external  {
+        IERC20(token0).transfer(_to, IERC20(token0).balanceOf(address(this))-reserve0);
+        IERC20(token0).transfer(_to, IERC20(token1).balanceOf(address(this))-reserve1);
+    }*/
+
     function skim(address _to) external  {
         IERC20(token0).transfer(_to, IERC20(token0).balanceOf(address(this))-reserve0);
         IERC20(token1).transfer(_to, IERC20(token1).balanceOf(address(this))-reserve1);

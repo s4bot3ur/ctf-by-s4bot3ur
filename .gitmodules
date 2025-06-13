@@ -1,33 +1,24 @@
-[submodule "bi0s-ctf-2025/DEX/lib/forge-std"]
-	path = bi0s-ctf-2025/DEX/lib/forge-std
+[submodule "bi0s-ctf-2025/The-Time-Traveller-Dex/lib/forge-std"]
+	path = bi0s-ctf-2025/The-Time-Traveller-Dex/lib/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
-[submodule "bi0s-ctf-2025/Vasthavikamaina-Token/lib/forge-std"]
-	path = bi0s-ctf-2025/Vasthavikamaina-Token/lib/forge-std
+[submodule "bi0s-ctf-2025/Vastavikamaina-Token/lib/forge-std"]
+	path = bi0s-ctf-2025/Vastavikamaina-Token/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
-[submodule "bi0s-ctf-2025/Vasthavikamaina-Token/lib/openzeppelin-contracts"]
-	path = bi0s-ctf-2025/Vasthavikamaina-Token/lib/openzeppelin-contracts
+[submodule "bi0s-ctf-2025/Vastavikamaina-Token/lib/openzeppelin-contracts"]
+	path = bi0s-ctf-2025/Vastavikamaina-Token/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
-[submodule "bi0s-ctf-2025/DEX/lib/openzeppelin-contracts"]
-	path = bi0s-ctf-2025/DEX/lib/openzeppelin-contracts
+[submodule "bi0s-ctf-2025/The-Time-Traveller-Dex/lib/lib/openzeppelin-contracts"]
+	path = bi0s-ctf-2025/The-Time-Traveller-Dex/lib/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
-[submodule "bi0s-ctf-2025/Inflation/lib/forge-std"]
-	path = bi0s-ctf-2025/Inflation/lib/forge-std
+[submodule "bi0s-ctf-2025/Empty-Vessel/lib/forge-std"]
+	path = bi0s-ctf-2025/Empty-Vessel/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
-[submodule "bi0s-ctf-2025/Inflation/lib/openzeppelin-contracts"]
-	path = bi0s-ctf-2025/Inflation/lib/openzeppelin-contracts
+[submodule "bi0s-ctf-2025/Empty-Vessel/lib/openzeppelin-contracts"]
+	path = bi0s-ctf-2025/Empty-Vessel/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
-[submodule "bi0s-ctf-2025/Phoenix/lib/forge-std"]
-	path = bi0s-ctf-2025/Phoenix/lib/forge-std
+[submodule "bi0s-ctf-2025/Transient-Heist/lib/forge-std"]
+	path = bi0s-ctf-2025/Transient-Heist/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
-[submodule "bi0s-ctf-2025/Phoenix/lib/openzeppelin-contracts"]
-	path = bi0s-ctf-2025/Phoenix/lib/openzeppelin-contracts
-	url = https://github.com/OpenZeppelin/openzeppelin-contracts
-[submodule "bi0s-ctf-2025/SIR-Hack/lib/forge-std"]
-	path = bi0s-ctf-2025/SIR-Hack/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
-[submodule "bi0s-ctf-2025/chall4/lib/forge-std"]
-	path = bi0s-ctf-2025/chall4/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
-[submodule "bi0s-ctf-2025/SIR-Hack/lib/openzeppelin-contracts"]
-	path = bi0s-ctf-2025/SIR-Hack/lib/openzeppelin-contracts
+[submodule "bi0s-ctf-2025/Transient-Heist/lib/openzeppelin-contracts"]
+	path = bi0s-ctf-2025/Transient-Heist/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts

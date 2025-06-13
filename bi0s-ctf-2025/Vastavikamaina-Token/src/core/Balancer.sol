@@ -18,12 +18,7 @@ contract Balancer is Ownable{
     error Balancer__Unapproved__Token(address _token);
     error Balancer__Insufficient__User__Balance(uint256 _expectedAmount,uint256 _actualAmount);
     error Balancer__ReEntrancy__prohibited();
-    mapping(address => bool) public approvedTokens;
-    mapping(address token =>mapping(address user=>uint256 amount)) tokenBalances;
-    uint256 public flashFee;
-    uint24 public max_flashFee=2_000;
-    uint24 public max_BIPS=100_000;
-    bool entered;
+    
     event TokenAprooved(address indexed _token);
     event TokenRevoked(address indexed _token);
     event TokensAproovedInBatch(address[] indexed _tokens);
@@ -31,6 +26,14 @@ contract Balancer is Ownable{
     event TokensStatusChanged(address[] indexed _tokens,bool[] indexed _status);
     event FlashLoan(IFlashLoanRecipient _recipient,IERC20 _token,uint256 _amount,uint256 _feeAmount);
     event Liquidity__Added(address _liquidityProvider,address _token,uint256 _amount);
+
+    mapping(address => bool) public approvedTokens;
+    mapping(address token =>mapping(address user=>uint256 amount)) tokenBalances;
+    uint256 public flashFee;
+    uint24 public max_flashFee=2_000;
+    uint24 public max_BIPS=100_000;
+    bool public entered;
+    bool public flashLoanTaken;
     constructor()Ownable(msg.sender){
 
     }
@@ -86,6 +89,7 @@ contract Balancer is Ownable{
     }
 
     function flashloan(IFlashLoanRecipient recipient,IERC20[] memory _tokens,uint256[] memory _amounts,bytes memory _data)external nonReentrant{
+        flashLoanTaken=true;
         if(_tokens.length!=_amounts.length){
             revert Balancer__Incorrect__Length(uint8(_tokens.length),uint8(_amounts.length));
         }
@@ -122,6 +126,7 @@ contract Balancer is Ownable{
 
             emit FlashLoan(recipient,_token,_amounts[i],_receivedFeeAmount);
         }
+        flashLoanTaken=false;
         
     }
 
@@ -136,7 +141,7 @@ contract Balancer is Ownable{
 
     function takeOffLiquidity(address _token,uint256 _amount)external nonReentrant{
         uint256 user_balance=tokenBalances[_token][msg.sender];
-        if(_amount<user_balance){
+        if(_amount>user_balance){
             revert Balancer__Insufficient__User__Balance(_amount,user_balance);
         }
         IERC20(_token).transfer(msg.sender, _amount);

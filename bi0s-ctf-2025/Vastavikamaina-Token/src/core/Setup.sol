@@ -16,7 +16,9 @@ import {Balancer} from "./Balancer.sol";
  */
 contract Setup {
 
-    error Setup__Chall__Not__Solved();
+    error Setup__Player__Cant__Be__WETH();
+    error Setup__Player__Cant__Be__Set__During__Flash__Loan();
+
     VasthavikamainaToken public VSTETH;
     IUniswapV2Factory public uniswapV2Factory;
     WhiteListed public whiteListed;
@@ -30,7 +32,7 @@ contract Setup {
     LamboToken public lamboToken2;
     LamboToken public lamboToken3;
     bool public solved;
-    
+    address public player;
 
     constructor(address _uniswapV2Factory) payable {
         VSTETH=new VasthavikamainaToken();
@@ -63,16 +65,25 @@ contract Setup {
         balancer.approveToken(address(VSTETH));
     }
 
-    function solve()public{
-        if(msg.sender.balance< 141.3 ether){
-            revert Setup__Chall__Not__Solved();
+    ///@notice This challenge had an unintended solution because you can directly set the player address as weth contract address and make the isSolved() return true;
+    /*
+    function setPlayer(address _player)public{
+        player=_player;
+    }*/
+
+    function setPlayer(address _player)public{
+        if(_player==address(wETH9)){
+            revert Setup__Player__Cant__Be__WETH();
         }
-        solved=true;
+        if(balancer.flashLoanTaken()){
+            revert Setup__Player__Cant__Be__Set__During__Flash__Loan();
+        }
+        player=_player;
     }
     
 
     function isSolved()public view returns (bool){
-        if(!solved){
+        if(player.balance< 141.3 ether){
             return false;
         }
         return true;

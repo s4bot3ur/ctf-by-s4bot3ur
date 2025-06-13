@@ -6,6 +6,7 @@ import {USDS} from "./tokens/USDS.sol";
 
 import {IBi0sSwapFactory} from "src/bi0s-swap-v1/interfaces/IBi0sSwapFactory.sol";
 import {IBi0sSwapPair} from "src/bi0s-swap-v1/interfaces/IBi0sSwapPair.sol";
+import {IBi0sSwapCalle} from "src/bi0s-swap-v1/interfaces/IBi0sSwapCalle.sol";
 
 /*
 This contract only accepts Safe Moon,WETH,SOL
@@ -13,8 +14,6 @@ This contract only accepts Safe Moon,WETH,SOL
 1SafeMoon =0.0000000000001657 USDS
 1SOL      =150 USDS
 */
-
-import {IBi0sSwapCalle} from "src/bi0s-swap-v1/interfaces/IBi0sSwapCalle.sol";
 
 contract USDSEngine is IBi0sSwapCalle{
     /*//////////////////////////////////////////////////////////////
@@ -120,6 +119,23 @@ contract USDSEngine is IBi0sSwapCalle{
         collateralDeposited[msg.sender][_tokenAddress]=_usdsMintAmount;
         _mintUSDS(msg.sender,_usdsMintAmount);
     }
+
+    /// @notice This is the actual version depositCollateralThroughSwap implemented during ctf. But there is one unintended solve because of not validating the other token
+    /*
+    function depositCollateralThroughSwap(address _otherToken,address _collateralToken,uint256 swapAmount,uint256 _collateralDepositAmount)public acceptedToken(_otherToken)returns (uint256 tokensSentToUserVault){
+        IERC20(_otherToken).transferFrom(msg.sender, address(this), swapAmount);
+        IBi0sSwapPair bi0sSwapPair=IBi0sSwapPair(bi0sSwapFactory.getPair(_otherToken, _collateralToken));
+        assembly{
+            tstore(1,bi0sSwapPair)
+        }
+        bytes memory data=abi.encode(_collateralDepositAmount);
+        IERC20(_otherToken).approve(address(bi0sSwapPair), swapAmount);
+        bi0sSwapPair.swap(_otherToken, swapAmount, address(this),data);
+        assembly{
+            tokensSentToUserVault:=tload(1)
+        }
+    }
+    */
 
     function depositCollateralThroughSwap(
         address _otherToken,

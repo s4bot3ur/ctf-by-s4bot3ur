@@ -24,9 +24,9 @@ contract Solve is Script{
 
 
 contract Exploit{
-
-    constructor(){
-
+    Setup setup;
+    constructor(address _setup){
+        setup=Setup(_setup);
     }
     function pwn()public{
         /*
