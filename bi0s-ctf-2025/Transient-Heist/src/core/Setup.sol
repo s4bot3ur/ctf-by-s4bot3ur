@@ -89,9 +89,6 @@ contract Setup{
         _statuses[1]=true;
         
         usdsEngine=new USDSEngine(_tokenaddresses,_statuses,bi0sSwapFactory,address(usdc));
-        usdsEngine.changeOtherTokenStatus(address(weth), true);
-        usdsEngine.changeOtherTokenStatus(address(safeMoon), true);
-        usdsEngine.changeOtherTokenStatus(address(usdc), true);
         usds.setMintAuthority(address(usdsEngine));
         poolDeployHelper=IUniswapPoolsDeployHelper(_poolDeployHelper);
 

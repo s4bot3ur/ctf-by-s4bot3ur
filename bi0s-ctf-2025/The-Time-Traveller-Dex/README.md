@@ -59,4 +59,4 @@ Your goal is to implement the exploit logic in the `script/Solve.s.sol:Exploit` 
 
 ---
 
-**Happy Hacking! 🎉**
+**Happy Hacking!**

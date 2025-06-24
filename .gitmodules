@@ -22,3 +22,9 @@
 [submodule "bi0s-ctf-2025/Transient-Heist/lib/openzeppelin-contracts"]
 	path = bi0s-ctf-2025/Transient-Heist/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "bi0s-ctf-2025/Transient-Heist-Revenge/lib/forge-std"]
+	path = bi0s-ctf-2025/Transient-Heist-Revenge/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "bi0s-ctf-2025/Transient-Heist-Revenge/lib/openzeppelin-contracts"]
+	path = bi0s-ctf-2025/Transient-Heist-Revenge/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts

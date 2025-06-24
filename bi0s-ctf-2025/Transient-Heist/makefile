@@ -20,8 +20,5 @@ solve:
 	forge script script/Solve.s.sol:Solve --rpc-url $(ANVIL_RPC_URL) --private-key $(ANVIL_PK) --broadcast "$(V)" 
 
 
-author-solve:create-vanity
+author-solve:
 	forge script script/Author/Solve.s.sol:Solve --rpc-url $(ANVIL_RPC_URL) --private-key $(ANVIL_PK) --broadcast "$(V)" 
-
-create-vanity:
-	cargo run --manifest-path script/Author/Vanity-Generator/Cargo.toml --release

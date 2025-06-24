@@ -9,19 +9,18 @@ import {IBi0sSwapPair} from "src/bi0s-swap-v1/interfaces/IBi0sSwapPair.sol";
 import {IBi0sSwapCalle} from "src/bi0s-swap-v1/interfaces/IBi0sSwapCalle.sol";
 
 /*
-This contract only accepts Safe Moon,WETH,SOL
-1WETH     =2500USDS
-1SafeMoon =0.0000000000001657 USDS
-1SOL      =150 USDS
-*/
+ This contract only accepts Safe Moon,WETH,SOL
+ 1WETH     =2500USDS
+ 1SafeMoon =0.0000000000001657 USDS
+ 1SOL      =150 USDS
+ */
 
 contract USDSEngine is IBi0sSwapCalle{
     /*//////////////////////////////////////////////////////////////
-                                 ERRORS
+    ERRORS
     //////////////////////////////////////////////////////////////*/
     error USDSEngine_In_Equal_Lengths(uint8 _leftLength,uint8 _rightLength);
     error USDSEngine_Invalid_DepositToken(address _tokenAddress);
-    error USDSEngine_Token_Not_Accepted(address _tokenAddress);
     error USDSEngine__Insufficient__Collateral();
     error USDSEngine__Insufficient__Collateral__To__Redeem();
     error USDSEngine__HealthFactor__Broken();
@@ -29,27 +28,25 @@ contract USDSEngine is IBi0sSwapCalle{
     error USDSEngine__Only__bi0sSwapPair__Can__Call();
     error USDSEngine__Insufficient__USDS__To__Burn();
     error USDSEngine__Insufficient__Tokens__In__Vault();
-    error USDCEngine__Invalid__Owner();
     /*//////////////////////////////////////////////////////////////
-                                 EVENTS
+    EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    
+
 
     /*//////////////////////////////////////////////////////////////
-                            STATE VARIABLES
+    STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
     uint8 constant LIQUIDATION_THRESHOLD=90;
     uint8 constant LIQUIDATION_PRECISION = 100;
-    mapping(address token_address=>bool status) public accepted_collateral_tokens;
-    mapping(address token_address=>bool status) public accepted_other_tokens;
+    mapping(address token_address=>bool status) public accepted_tokens;
     mapping(address user=> mapping(address token=> uint256 amount)) public collateralDeposited;
     mapping(address user=> mapping(address token=> uint256 amount)) public user_vault;
     mapping(address user=> uint256 totalUSDS) public mintedUSDS;
     address[] public collateralTokens;
     USDS usds;
     IBi0sSwapFactory bi0sSwapFactory;
-    address owner;
+
     address immutable USDC;
 
 
@@ -58,24 +55,16 @@ contract USDSEngine is IBi0sSwapCalle{
             revert USDSEngine_In_Equal_Lengths(uint8(_tokenaddresses.length),uint8(_statuses.length));
         }
         for(uint8 i=0;i<_statuses.length;i++){
-            accepted_collateral_tokens[_tokenaddresses[i]]=_statuses[i];
+            accepted_tokens[_tokenaddresses[i]]=_statuses[i];
             collateralTokens.push(_tokenaddresses[i]);
         }
         bi0sSwapFactory=_bi0sSwapFactory;
         USDC=usdc;
-        owner=msg.sender;
     }
 
-    modifier acceptedCollateralToken(address _tokenAddress){
-        if(!accepted_collateral_tokens[_tokenAddress]){
+    modifier acceptedToken(address _tokenAddress){
+        if(!accepted_tokens[_tokenAddress]){
             revert USDSEngine_Invalid_DepositToken(_tokenAddress);
-        }
-        _;
-    }
-
-    modifier acceptedOtherToken(address _tokenAddress){
-        if(!accepted_other_tokens[_tokenAddress]){
-            revert USDSEngine_Token_Not_Accepted(_tokenAddress);
         }
         _;
     }
@@ -97,31 +86,15 @@ contract USDSEngine is IBi0sSwapCalle{
         }
     }
 
-    function changeOtherTokenStatus(address _token,bool _status)public {
-        if(msg.sender!=owner){
-            revert USDCEngine__Invalid__Owner();
-        }
-        accepted_other_tokens[_token]=_status;
-    }
 
-    function changeCollateralTokenStatus(address _token,bool _status)public {
-        if(msg.sender!=owner){
-            revert USDCEngine__Invalid__Owner();
-        }
-        accepted_collateral_tokens[_token]=_status;
-    }
-
-
-    function depositCollateralAndMint(address _tokenAddress,uint256 _amountCollateral,uint256 _usdsMintAmount)public acceptedCollateralToken(_tokenAddress){
+    function depositCollateralAndMint(address _tokenAddress,uint256 _amountCollateral,uint256 _usdsMintAmount)public acceptedToken(_tokenAddress){
         uint256 max_usds_mint=getUSDSMaxMintAmount(_tokenAddress, _amountCollateral);
         _validateMintAmount(_usdsMintAmount,max_usds_mint);
         IERC20(_tokenAddress).transferFrom(msg.sender, address(this), _amountCollateral);
         collateralDeposited[msg.sender][_tokenAddress]=_usdsMintAmount;
         _mintUSDS(msg.sender,_usdsMintAmount);
     }
-
-    /// @notice This is the actual version depositCollateralThroughSwap implemented during ctf. But there is one unintended solve because of not validating the other token
-    /*
+    
     function depositCollateralThroughSwap(address _otherToken,address _collateralToken,uint256 swapAmount,uint256 _collateralDepositAmount)public acceptedToken(_otherToken)returns (uint256 tokensSentToUserVault){
         IERC20(_otherToken).transferFrom(msg.sender, address(this), swapAmount);
         IBi0sSwapPair bi0sSwapPair=IBi0sSwapPair(bi0sSwapFactory.getPair(_otherToken, _collateralToken));
@@ -135,33 +108,8 @@ contract USDSEngine is IBi0sSwapCalle{
             tokensSentToUserVault:=tload(1)
         }
     }
-    */
 
-    function depositCollateralThroughSwap(
-        address _otherToken,
-        address _collateralToken,
-        uint256 swapAmount,
-        uint256 _collateralDepositAmount
-    )
-        public  
-        acceptedOtherToken(_otherToken)
-        acceptedCollateralToken(_collateralToken)
-        returns (uint256 tokensSentToUserVault)
-    {
-        IERC20(_otherToken).transferFrom(msg.sender, address(this), swapAmount);
-        IBi0sSwapPair bi0sSwapPair=IBi0sSwapPair(bi0sSwapFactory.getPair(_otherToken, _collateralToken));
-        assembly{
-            tstore(1,bi0sSwapPair)
-        }
-        bytes memory data=abi.encode(_collateralDepositAmount);
-        IERC20(_otherToken).approve(address(bi0sSwapPair), swapAmount);
-        bi0sSwapPair.swap(_otherToken, swapAmount, address(this),data);
-        assembly{
-            tokensSentToUserVault:=tload(1)
-        }
-    }
-
-    function redeemCollateral(address _tokenAddress,uint256 _redeemAmount)public acceptedCollateralToken(_tokenAddress){
+    function redeemCollateral(address _tokenAddress,uint256 _redeemAmount)public acceptedToken(_tokenAddress){
         uint256 tokenCollateralDeposited=collateralDeposited[msg.sender][_tokenAddress];
 
         if(tokenCollateralDeposited<_redeemAmount){
@@ -171,12 +119,12 @@ contract USDSEngine is IBi0sSwapCalle{
         collateralDeposited[msg.sender][_tokenAddress]-=_redeemAmount;
 
         uint256 current_user_collateral_value_in_usds=getAccountData(msg.sender);
-        
+
         if(current_user_collateral_value_in_usds<mintedUSDS[msg.sender]){
             revert USDSEngine__HealthFactor__Broken();
         }
     }
-    
+
     function bi0sSwapv1Call(address sender,address collateralToken,uint256 amountOut,bytes memory data) external nonReEntrant {
         uint256 collateralDepositAmount=abi.decode(data,(uint256));
         address bi0sSwapPair;
@@ -223,15 +171,15 @@ contract USDSEngine is IBi0sSwapCalle{
         if(uniPair.token0()==USDC){
             _deposit_Token_Price_in_usds=(_reserve0*1e25)/(_reserve1);
         }else{
-            
+
             _deposit_Token_Price_in_usds=(_reserve1*1e25)/(_reserve0);
         }
-        
+
         max_usds_mint = (_amountCollateral *_deposit_Token_Price_in_usds)/1e25;
         max_usds_mint=(max_usds_mint*LIQUIDATION_THRESHOLD)/LIQUIDATION_PRECISION;
     }
 
-    function convert_Tokens_From_Vault_To_Deposits(address _tokenAddress,uint256 _amount)public acceptedCollateralToken(_tokenAddress){
+    function convert_Tokens_From_Vault_To_Deposits(address _tokenAddress,uint256 _amount)public acceptedToken(_tokenAddress){
         uint256 _userVaultBalance=user_vault[msg.sender][_tokenAddress];
         if(_amount>_userVaultBalance){
             revert USDSEngine__Insufficient__Tokens__In__Vault();

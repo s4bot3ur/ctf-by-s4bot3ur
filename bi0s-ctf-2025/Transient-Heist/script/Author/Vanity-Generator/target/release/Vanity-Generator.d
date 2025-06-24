@@ -1,1 +1,0 @@
-/home/s4bot3ur/Desktop/blockchain/ctf-by-s4bot3ur/bi0s-ctf-2025/Transient-Heist/script/Author/Vanity-Generator/target/release/Vanity-Generator: /home/s4bot3ur/Desktop/blockchain/ctf-by-s4bot3ur/bi0s-ctf-2025/Transient-Heist/script/Author/Vanity-Generator/src/main.rs

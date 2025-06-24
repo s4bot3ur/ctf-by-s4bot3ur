@@ -65,4 +65,4 @@ Your goal is to implement the exploit logic in the `pwn()` function that success
 
 ---
 
-**Happy Hacking! 🎉**
+**Happy Hacking!**

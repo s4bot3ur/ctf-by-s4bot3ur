@@ -5,8 +5,8 @@ This guide will help you set up and solve the `Transient Heist` challenge locall
 ## Prerequisites
 
 - [Foundry](https://book.getfoundry.sh/getting-started/installation) installed
-- Basic understanding of Solidity and smart contracts
-
+- A solid understanding of Solidity and DeFi concepts such as stablecoins and decentralized exchanges (DEXes)
+ 
 ## Quick Start
 
 ### 1. Start local anvil instance
@@ -67,4 +67,4 @@ Your goal is to implement the exploit logic in the `pwn()` function that success
 
 ---
 
-**Happy Hacking! 🎉**
+**Happy Hacking!**
